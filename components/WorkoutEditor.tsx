@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Exercise, WorkoutSet } from '../types';
 import { Button } from './Button';
-import { Plus, Trash2, Dumbbell, Save, Copy } from 'lucide-react';
+import { Plus, Trash2, Dumbbell, Save, Copy, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface WorkoutEditorProps {
   date: string;
@@ -62,6 +62,16 @@ export const WorkoutEditor: React.FC<WorkoutEditorProps> = ({
     setExercises(exercises.filter((_, i) => i !== index));
   };
 
+  const moveExercise = (index: number, direction: 'up' | 'down') => {
+    const newExercises = [...exercises];
+    if (direction === 'up' && index > 0) {
+      [newExercises[index], newExercises[index - 1]] = [newExercises[index - 1], newExercises[index]];
+    } else if (direction === 'down' && index < newExercises.length - 1) {
+      [newExercises[index], newExercises[index + 1]] = [newExercises[index + 1], newExercises[index]];
+    }
+    setExercises(newExercises);
+  };
+
   const handleSave = () => {
     onSave(exercises);
   };
@@ -88,17 +98,40 @@ export const WorkoutEditor: React.FC<WorkoutEditorProps> = ({
           </div>
         )}
         {exercises.map((exercise, exIndex) => (
-          <div key={exercise.id} className="bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-sm">
+          <div key={exercise.id} className="bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-sm transition-all duration-300">
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-lg font-semibold text-emerald-400 flex items-center gap-2">
                 <Dumbbell size={18} /> {exercise.name}
               </h3>
-              <button 
-                onClick={() => removeExercise(exIndex)}
-                className="text-slate-500 hover:text-red-400 p-1"
-              >
-                <Trash2 size={18} />
-              </button>
+              
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => moveExercise(exIndex, 'up')}
+                  disabled={exIndex === 0}
+                  className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-700 rounded disabled:opacity-20 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                  title="上移"
+                >
+                  <ArrowUp size={18} />
+                </button>
+                <button
+                  onClick={() => moveExercise(exIndex, 'down')}
+                  disabled={exIndex === exercises.length - 1}
+                  className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-700 rounded disabled:opacity-20 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                  title="下移"
+                >
+                  <ArrowDown size={18} />
+                </button>
+                
+                <div className="w-px h-4 bg-slate-700 mx-1"></div>
+                
+                <button 
+                  onClick={() => removeExercise(exIndex)}
+                  className="text-slate-500 hover:text-red-400 hover:bg-slate-700 p-1.5 rounded transition-colors"
+                  title="刪除動作"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             </div>
 
             <div className="space-y-2">

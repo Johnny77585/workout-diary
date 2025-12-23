@@ -6,6 +6,7 @@ import { CalendarView } from './components/CalendarView';
 import { StatsView } from './components/StatsView';
 import { generateWorkoutAdvice } from './services/geminiService';
 import { Button } from './components/Button';
+import { Toast } from './components/Toast';
 
 const STORAGE_KEY = 'fittrack_log_v1';
 
@@ -23,6 +24,9 @@ export default function App() {
   const [log, setLog] = useState<WorkoutLog>({});
   const [view, setView] = useState<AppView>(AppView.CALENDAR);
   const [selectedDate, setSelectedDate] = useState<string>(getLocalDateString());
+  
+  // Toast State
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   
   // AI Modal State
   const [showAiModal, setShowAiModal] = useState(false);
@@ -54,6 +58,7 @@ export default function App() {
   const handleSaveWorkout = (exercises: Exercise[]) => {
     const newLog = { ...log, [selectedDate]: exercises };
     saveLogs(newLog);
+    setToastMessage("儲存成功！");
   };
 
   const openCopyModal = () => {
@@ -83,6 +88,7 @@ export default function App() {
     // Switch to the target date view
     setSelectedDate(copyTargetDate);
     setView(AppView.EDITOR);
+    setToastMessage("複製成功！");
   };
 
   const handleGetAdvice = async () => {
@@ -99,6 +105,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen pb-20">
+      {/* Toast Notification */}
+      <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
+
       {/* Header */}
       <header className="bg-slate-900/80 backdrop-blur-md sticky top-0 z-20 border-b border-slate-800">
         <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">

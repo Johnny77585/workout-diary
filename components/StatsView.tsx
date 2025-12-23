@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { WorkoutLog } from '../types';
 
 interface StatsViewProps {
@@ -13,7 +13,13 @@ export const StatsView: React.FC<StatsViewProps> = ({ log }) => {
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const key = d.toISOString().split('T')[0];
+      
+      // Fix: Use local date generation to match App.tsx and CalendarView.tsx keys
+      // (toISOString uses UTC which might cause mismatch in timezone)
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const key = `${year}-${month}-${day}`;
       
       const exercises = log[key] || [];
       const totalSets = exercises.reduce((acc, ex) => acc + ex.sets.length, 0);
@@ -47,8 +53,9 @@ export const StatsView: React.FC<StatsViewProps> = ({ log }) => {
 
        <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
          <h3 className="text-lg font-semibold text-white mb-4">過去7天訓練量 (Volume)</h3>
-         <div className="h-64 w-full">
-           <ResponsiveContainer width="100%" height="100%">
+         {/* Fix: Explicit height ensures ResponsiveContainer has dimensions to measure */}
+         <div style={{ width: '100%', height: 300, minHeight: 300 }}>
+           <ResponsiveContainer width="100%" height="100%" minWidth={0}>
              <BarChart data={data}>
                <XAxis 
                   dataKey="date" 
